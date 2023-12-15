@@ -13,9 +13,25 @@ const canvas = document.querySelector('.webgl')
 const scene = new THREE.Scene();
 
 const sphereGeom = new THREE.SphereGeometry(0.5, 16, 16);
+// const sphereGeom = new THREE.BufferGeometry();
+
+// const verteces = new Float32Array([
+//   //x//y//z
+//     0, 0, 0,
+//     0, 1, 0,
+//     1, 0, 0,
+//     0, 0, 5,
+//     5, 5, 0,
+//     2, 2, 2
+// ]);
+
+// const vertecesAttribute = new THREE.BufferAttribute(verteces, 3);
+
+// sphereGeom.setAttribute('position', vertecesAttribute);
 
 const textureLoader = new THREE.TextureLoader();
 const doorTexture = textureLoader.load(door);
+
 
 const sphereMaterial = new THREE.MeshBasicMaterial({});
 sphereMaterial.map = doorTexture
