@@ -1,23 +1,24 @@
 
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-import GUI from 'lil-gui'
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js'
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js'
+const textureLoader = new THREE.TextureLoader();
 
 
 /**
  * Base
  */
 // Debug
-const gui = new GUI()
 
 // Canvas
 const canvas = document.querySelector('canvas.webgl')
 
 // Scene
 const scene = new THREE.Scene()
-scene.background = ''
+
+const winter = textureLoader.load('/winter.jpg')
+scene.background = winter;
 /**
  * Lights
  */
@@ -31,7 +32,6 @@ scene.add(directionalLight)
  */
 // Material
 
-const textureLoader = new THREE.TextureLoader();
 const metal = textureLoader.load('/metal.png');
 metal.colorSpace = THREE.SRGBColorSpace
 
@@ -39,6 +39,7 @@ const cylinder = new THREE.CylinderGeometry(1.75, 2.25, 2.4, 40, 8, true)
 const material = new THREE.MeshMatcapMaterial({
     matcap: metal
 });
+material.side = THREE.DoubleSide;
 const roloSide = new THREE.Mesh(cylinder, material);
 const circleBottom = new THREE.CircleGeometry(2.25)
 const circleTop = new THREE.CircleGeometry(1.75 - .10)
@@ -51,10 +52,35 @@ const roloTop = new THREE.Mesh(circleTop, material);
 roloTop.rotation.x = - (Math.PI * .5);
 roloTop.position.y = 1
 
+const rings = new THREE.Group();
+const ringRadius = [
+    .5, 
+    2, 
+    3.5
+];
+const ringGeom = new THREE.TorusGeometry( .33, 0.033, 2, 200 ); 
+
+const ringMaterial = new THREE.MeshStandardMaterial({
+    color: 'black',
+    metalness: .2,
+    opacity: .4,
+    transparent: true
+})
+ringRadius.forEach(r => {
+    const geom = ringGeom.clone().scale(r, r, r);
+    const ring = new THREE.Mesh(geom, ringMaterial);
+    ring.rotateX(Math.PI / 2)
+    rings.add(ring);
+})
+
+
+rings.position.y = 1.1
+
 const rolo = new THREE.Group();
 rolo.add( roloSide );
 rolo.add( roloBottom )
 rolo.add( roloTop )
+rolo.add( rings )
 
 const loader = new FontLoader();
 
@@ -63,7 +89,7 @@ loader.load( '/Dancing_Script_Regular.json', function ( font ) {
 	const geometry = new TextGeometry( "It's the journey xxx", {
 		font: font,
 		size: .4,
-		height: 0.1,
+		height: 0.01,
 		curveSegments: 12,
 	} );
 
@@ -71,11 +97,13 @@ loader.load( '/Dancing_Script_Regular.json', function ( font ) {
 
     const material = new THREE.MeshStandardMaterial({
         color: 'black',
-        metalness: .2
+        metalness: .2,
+        opacity: .4,
+        transparent: true
     })
 
     const mesh = new THREE.Mesh(geometry, material);
-    mesh.position.y = -1.15
+    mesh.position.y = -1.20
     mesh.rotation.x = Math.PI  / 2
     rolo.add(mesh);
 
