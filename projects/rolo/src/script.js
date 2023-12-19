@@ -2,6 +2,9 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import GUI from 'lil-gui'
+import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js'
+import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js'
+
 
 /**
  * Base
@@ -19,8 +22,8 @@ scene.background = ''
  * Lights
  */
 
-const ambientLight = new THREE.AmbientLight(0xfffff)
-scene.add(ambientLight)
+const directionalLight = new THREE.HemisphereLight(0xfff, 0xfff, 10)
+scene.add(directionalLight)
 
 
 /**
@@ -29,13 +32,13 @@ scene.add(ambientLight)
 // Material
 
 const textureLoader = new THREE.TextureLoader();
-const environmentMapTexture = textureLoader.load("/envMap.hdr");
 const metal = textureLoader.load('/metal.png');
 metal.colorSpace = THREE.SRGBColorSpace
 
 const cylinder = new THREE.CylinderGeometry(1.75, 2.25, 2.4, 40, 8, true)
-const material = new THREE.MeshMatcapMaterial({wireframe: true});
-material.matcap = metal;
+const material = new THREE.MeshMatcapMaterial({
+    matcap: metal
+});
 const roloSide = new THREE.Mesh(cylinder, material);
 const circleBottom = new THREE.CircleGeometry(2.25)
 const circleTop = new THREE.CircleGeometry(1.75 - .10)
@@ -49,14 +52,38 @@ roloTop.rotation.x = - (Math.PI * .5);
 roloTop.position.y = 1
 
 const rolo = new THREE.Group();
-rolo.position.x = -2
-rolo.position.y = -1
-rolo.position.z = -10
 rolo.add( roloSide );
 rolo.add( roloBottom )
 rolo.add( roloTop )
 
-scene.add(rolo);
+const loader = new FontLoader();
+
+loader.load( '/Dancing_Script_Regular.json', function ( font ) {
+
+	const geometry = new TextGeometry( "It's the journey xxx", {
+		font: font,
+		size: .4,
+		height: 0.1,
+		curveSegments: 12,
+	} );
+
+    geometry.center();
+
+    const material = new THREE.MeshStandardMaterial({
+        color: 'black',
+        metalness: .2
+    })
+
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.position.y = -1.15
+    mesh.rotation.x = Math.PI  / 2
+    rolo.add(mesh);
+
+    scene.add(rolo);
+
+} );
+
+
 
 /**
  * Sizes
@@ -88,13 +115,13 @@ window.addEventListener('resize', () =>
 // Base camera
 const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
 camera.position.x = 1
-camera.position.y = 1
-camera.position.z = 2
+camera.position.y = 2
+camera.position.z = -8
 scene.add(camera)
 
 // Controls
-// const controls = new OrbitControls(camera, canvas)
-// controls.enableDamping = true
+const controls = new OrbitControls(camera, canvas)
+controls.enableDamping = true
 
 /**
  * Renderer
