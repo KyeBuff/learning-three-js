@@ -97,7 +97,21 @@ plane.receiveShadow = true;
 plane.rotation.x = - Math.PI * 0.5
 plane.position.y = - 0.5
 
-scene.add(sphere, plane)
+const textureLoader = new THREE.TextureLoader();
+const shadowAlphaMap = textureLoader.load('/textures/simpleShadow.jpg')
+const shadowPlaneMaterial = new THREE.MeshBasicMaterial({
+    color: 0x0000000,
+    alphaMap: shadowAlphaMap,
+    transparent: true
+})
+const shadowPlane = new THREE.Mesh(
+    new THREE.PlaneGeometry(1.25, 1.25),
+    shadowPlaneMaterial
+)
+shadowPlane.rotateX(- (Math.PI * .5))
+shadowPlane.position.y = plane.position.y + 0.01
+
+scene.add(sphere, plane, shadowPlane)
 
 /**
  * Sizes
@@ -143,7 +157,7 @@ const renderer = new THREE.WebGLRenderer({
     canvas: canvas
 })
 
-renderer.shadowMap.enabled = true;
+renderer.shadowMap.enabled = false;
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
@@ -155,6 +169,15 @@ const clock = new THREE.Clock()
 const tick = () =>
 {
     const elapsedTime = clock.getElapsedTime()
+
+    sphere.position.x = Math.sin(elapsedTime) * 1.5;
+    sphere.position.z = Math.cos(elapsedTime) * 1.5;
+    sphere.position.y = Math.abs(Math.sin(elapsedTime * 4))
+
+    shadowPlane.position.x = sphere.position.x
+    shadowPlane.position.z = sphere.position.z
+
+    shadowPlane.material.opacity = (1 - sphere.position.y) * .3
 
     // Update controls
     controls.update()
