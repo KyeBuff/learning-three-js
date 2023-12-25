@@ -1,3 +1,15 @@
+/***
+ * Textures will either stretch or repeat if you ask them too
+ * 
+* displacement is the textures depth map with a displacement scale
+* ambient occlusion - add fake shadows in crevices
+* normals - how a textures parts respond to light, adds detail - no subdivision required 
+* alpha - black is visible, white is not
+* roughness - rough or smooth
+* metalness - shiny or matt
+* map - color / albedo
+ */
+
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import GUI from 'lil-gui'
