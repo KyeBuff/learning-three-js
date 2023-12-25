@@ -27,6 +27,39 @@ scene.fog = fog
  */
 const textureLoader = new THREE.TextureLoader()
 
+const brickTextures = {
+    // ambient occlusion allows for shadows in things like crevices in a texture as defined by the map
+    aoMap: textureLoader.load('/textures/bricks/ambientOcclusion.jpg'),
+    map: textureLoader.load('/textures/bricks/color.jpg'),
+    // normal map can add detail without subdivision, works mostly around lightr
+    normalMap: textureLoader.load('/textures/bricks/normal.jpg'),
+    // How rough or smooth
+    roughnessMap: textureLoader.load('/textures/bricks/roughness.jpg'),
+}
+
+const doorTextures = {
+    // ambient occlusion allows for shadows in things like crevices in a texture as defined by the map
+    alphaMap: textureLoader.load('/textures/door/alpha.jpg'),
+    aoMap: textureLoader.load('/textures/door/ambientOcclusion.jpg'),
+    map: textureLoader.load('/textures/door/color.jpg'),
+    // Increase subdivision to allow for "height" or "depth" effect on texture
+    // dispalcement scale used to increase depth
+    displacementMap: textureLoader.load('/textures/door/height.jpg'),
+    normalMap: textureLoader.load('/textures/door/normal.jpg'),
+    metalnessMap: textureLoader.load('/textures/door/metalness.jpg'),
+    roughnessMap: textureLoader.load('/textures/door/roughness.jpg'),
+}
+
+const grassTextures = {
+    aoMap: textureLoader.load('/textures/grass/ambientOcclusion.jpg'),
+    map: textureLoader.load('/textures/grass/color.jpg'),
+    normalMap: textureLoader.load('/textures/grass/normal.jpg'),
+    roughnessMap: textureLoader.load('/textures/grass/roughness.jpg'),
+}
+
+brickTextures.map.colorSpace = THREE.SRGBColorSpace;
+doorTextures.map.colorSpace = THREE.SRGBColorSpace;
+
 /**
  * House
  */
@@ -45,7 +78,7 @@ const wallSize = {
 const walls = new THREE.Mesh(
     new THREE.BoxGeometry(wallSize.width, wallSize.height, wallSize.depth),
     new THREE.MeshStandardMaterial({
-        color: '#c4c4c4'
+        ...brickTextures
     })
 )
 
@@ -61,9 +94,11 @@ roof.position.y = wallSize.height + 0.5
 roof.rotation.y = Math.PI * 0.25
 
 const door = new THREE.Mesh(
-    new THREE.PlaneGeometry(1, 2),
-    new THREE.MeshBasicMaterial({
-        color: '#3d2815'
+    new THREE.PlaneGeometry(2.2, 2.2, 100, 100),
+    new THREE.MeshStandardMaterial({
+        ...doorTextures,
+        displacementScale: 0.1,
+        transparent: true
     })
 )
 
@@ -74,8 +109,6 @@ const bushGeom = new THREE.SphereGeometry(.5)
 const bushMaterial =   new THREE.MeshStandardMaterial({
     color: '#068906'
 })
-
-gui.addColor(bushMaterial, 'color');
 
 const bushes = [
     {
@@ -152,11 +185,18 @@ for(let i = 0; i < 50; i++) {
 
 house.add(door, walls, roof, graves);
 
+Object.values(grassTextures).forEach(texture => {
+    texture.repeat.set(8, 8);
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping
+})
 
 // Floor
 const floor = new THREE.Mesh(
     new THREE.PlaneGeometry(20, 20),
-    new THREE.MeshStandardMaterial({ color: '#a9c388' })
+    new THREE.MeshStandardMaterial({ 
+        ...grassTextures,
+     })
 )
 floor.rotation.x = - Math.PI * 0.5
 floor.position.y = 0
@@ -179,7 +219,7 @@ gui.add(moonLight.position, 'y').min(- 5).max(5).step(0.001)
 gui.add(moonLight.position, 'z').min(- 5).max(5).step(0.001)
 scene.add(moonLight)
 
-const doorLight = new THREE.PointLight('orange', 3, 7); 
+const doorLight = new THREE.PointLight('#ff7d46', 3, 7); 
 doorLight.position.set(0, 2.2, 2.7)
 house.add(doorLight)
 
