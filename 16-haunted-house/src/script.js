@@ -175,6 +175,11 @@ const graveMaterial = new THREE.MeshStandardMaterial({
     color: 'grey'
 })
 
+const mudGeometry = new THREE.PlaneGeometry(.75, 1.5);
+const mudMaterial = new THREE.MeshStandardMaterial({
+    color: 'brown'
+})
+
 for(let i = 0; i < 50; i++) {
     // below code gets a random angle as a float 0 - 6.blah
     const angle = Math.random() * Math.PI * 2;
@@ -190,10 +195,24 @@ for(let i = 0; i < 50; i++) {
     grave.position.z = Math.cos(angle) * radius
     grave.position.y = -0.05
 
-    grave.rotation.y = (Math.random() - .5) * .4
-    grave.rotation.z = (Math.random() - .5) * .4
+    const rotationZ = (Math.random() - .5) * .4;
+    const rotationY = (Math.random() - .5) * .4;
+    grave.rotation.y = rotationY
+    grave.rotation.z = rotationZ
 
     grave.castShadow = true;
+
+    const mud = new THREE.Mesh(
+        mudGeometry,
+        mudMaterial
+    )
+    mud.rotation.x = - (Math.PI * .5)
+    mud.rotation.z = -rotationZ * 2
+    mud.rotation.z = -rotationY * 2
+    mud.position.z = 1;
+    mud.position.y = -0.25;
+
+    grave.add(mud)
 
     graves.add(grave);
 }
@@ -305,7 +324,7 @@ moonLight.castShadow = true;
 
 const ghosts = [
     {
-        color: 'blue',
+        color: 'white',
         intensity: 2,
         distance: 3,
         light: null,
@@ -321,7 +340,7 @@ const ghosts = [
         }
     },
     {
-        color: 'red',
+        color: 'white',
         intensity: 2,
         distance: 3,
         light: null,
@@ -337,7 +356,7 @@ const ghosts = [
         }
     },
     {
-        color: 'green',
+        color: 'white',
         intensity: 2,
         distance: 3,
         light: null,
@@ -361,6 +380,14 @@ const ghosts = [
     return ghost;
 })
 
+const lightning = new THREE.PointLight( 0xffffff, 1, 100 );
+lightning.position.y = 10;
+lightning.castShadow = true;
+lightning.shadow.mapSize.height = 256
+lightning.shadow.mapSize.width = 256
+
+scene.add( lightning );
+
 
 /**
  * Animate
@@ -374,6 +401,15 @@ const tick = () =>
     ghosts.forEach(ghost => {
         ghost.animate(elapsedTime);
     })
+
+    const elapsedModulo = elapsedTime % 8;
+    if (elapsedModulo <= .5) {
+        lightning.intensity = 200;
+    } else if (elapsedModulo <= 1 && elapsedModulo >= .75) {
+        lightning.intensity = 200;
+    } else {
+        lightning.intensity = 1;
+    }
 
     // Update controls
     controls.update()
