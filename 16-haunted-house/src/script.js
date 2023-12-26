@@ -163,6 +163,8 @@ bushes.forEach(({position, scale}) => {
     b.position.set(position.x, position.y, position.z);
     b.scale.set(scale, scale, scale) 
 
+    b.castShadow = true;
+
     house.add(b);
 })
 
@@ -184,13 +186,14 @@ for(let i = 0; i < 50; i++) {
         graveMaterial
     )
 
-
     grave.position.x = Math.sin(angle) * radius
     grave.position.z = Math.cos(angle) * radius
     grave.position.y = -0.05
 
     grave.rotation.y = (Math.random() - .5) * .4
     grave.rotation.z = (Math.random() - .5) * .4
+
+    grave.castShadow = true;
 
     graves.add(grave);
 }
@@ -234,6 +237,14 @@ scene.add(moonLight)
 const doorLight = new THREE.PointLight('#ff7d46', 3, 7); 
 doorLight.position.set(0, 2.2, 2.7)
 house.add(doorLight)
+
+moonLight.shadow.camera.far = 14;
+doorLight.shadow.camera.far = 5
+moonLight.shadow.mapSize.width = 256;
+moonLight.shadow.mapSize.height = 256;
+doorLight.shadow.mapSize.width = 256;
+doorLight.shadow.mapSize.height = 256;
+
 
 /**
  * Sizes
@@ -281,6 +292,17 @@ const renderer = new THREE.WebGLRenderer({
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 renderer.setClearColor('#262837')
+
+// Shadows
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+floor.receiveShadow = true;
+walls.castShadow = true;
+doorLight.castShadow = true;
+moonLight.castShadow = true;
+
+
+
 /**
  * Animate
  */
