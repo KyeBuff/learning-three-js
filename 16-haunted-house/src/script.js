@@ -301,6 +301,65 @@ walls.castShadow = true;
 doorLight.castShadow = true;
 moonLight.castShadow = true;
 
+// Ghosts
+
+const ghosts = [
+    {
+        color: 'blue',
+        intensity: 2,
+        distance: 3,
+        light: null,
+        animate(elapsedTime) {
+            const angle = - elapsedTime * .5;
+            const radius = 3 + Math.random() * 3    ;
+
+            this.light.position.x = Math.sin(angle) * radius;
+            this.light.position.z = Math.cos(angle) * radius;
+
+            // Multiplication in the sin function causes a slower jump
+            this.light.position.y = Math.sin(elapsedTime * 1.5) * 2
+        }
+    },
+    {
+        color: 'red',
+        intensity: 2,
+        distance: 3,
+        light: null,
+        animate(elapsedTime) {
+            const angle = elapsedTime;
+            const radius = 4 + Math.random() * 10;
+
+            this.light.position.x = Math.sin(angle) * radius;
+            this.light.position.z = Math.cos(angle) * radius;
+
+            // Multiplication in the sin function causes a slower jump
+            this.light.position.y = Math.sin(elapsedTime * 3)
+        }
+    },
+    {
+        color: 'green',
+        intensity: 2,
+        distance: 3,
+        light: null,
+        animate(elapsedTime) {
+            const angle = -(Math.random() - .5) + elapsedTime ;
+            const radius = 7;
+
+            this.light.position.x = Math.sin(angle) * radius;
+            this.light.position.z = Math.cos(angle) * radius;
+
+            // Multiplication in the sin function causes a slower jump
+            this.light.position.y = Math.sin(elapsedTime * 3)
+        }
+    },
+].map(ghost => {
+    ghost.light = new THREE.PointLight(ghost.color, ghost.intensity, ghost.distance);
+    ghost.light.shadow.mapSize.height = 256;
+    ghost.light.shadow.mapSize.width = 256;
+    scene.add(ghost.light);
+
+    return ghost;
+})
 
 
 /**
@@ -311,6 +370,10 @@ const clock = new THREE.Clock()
 const tick = () =>
 {
     const elapsedTime = clock.getElapsedTime()
+
+    ghosts.forEach(ghost => {
+        ghost.animate(elapsedTime);
+    })
 
     // Update controls
     controls.update()
