@@ -202,18 +202,6 @@ for(let i = 0; i < 50; i++) {
 
     grave.castShadow = true;
 
-    const mud = new THREE.Mesh(
-        mudGeometry,
-        mudMaterial
-    )
-    mud.rotation.x = - (Math.PI * .5)
-    mud.rotation.z = -rotationZ * 2
-    mud.rotation.z = -rotationY * 2
-    mud.position.z = 1;
-    mud.position.y = -0.25;
-
-    grave.add(mud)
-
     graves.add(grave);
 }
 
