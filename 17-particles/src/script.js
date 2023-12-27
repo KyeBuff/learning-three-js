@@ -144,6 +144,14 @@ const tick = () =>
 {
     const elapsedTime = clock.getElapsedTime()
 
+    for(let i = 0; i < count; i++) {
+        const i3 = i * 3;
+
+        // i3 + 1 accesses the y attribute of each vertex
+        const x = random.geometry.attributes.position.array[i3];
+        random.geometry.attributes.position.array[i3 + 1] = Math.sin(elapsedTime + x);
+    }
+    random.geometry.attributes.position.needsUpdate = true;
     // Update controls
     controls.update()
 
