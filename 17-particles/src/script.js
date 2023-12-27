@@ -33,6 +33,14 @@ The scale of RGB is between 0 and 1 as a float.
 E.g. you can use rand() to generate a random color
 
 You must set vertexColors to true on the material if doing this.
+
+
+Accessing attributes
+
+Can be done off the geometry like so:
+random.geometry.attributes.position.array
+
+Not good for animating as FPS issue, custom shaders are the way forward
  */
 
 /**
