@@ -44,6 +44,12 @@ import GUI from 'lil-gui'
 
     Meaning the higher the value the more of that value is retained
 
+    You can blend two colors with lerp()
+
+    color.lerp(blendColor, alpha)
+
+    We have derived alpha using the random radius / parameter radius to get a value between 0 and 1 as the particle moves further out to the edges
+
  */
 
 /**
