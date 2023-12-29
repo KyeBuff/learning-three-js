@@ -32,6 +32,18 @@ import GUI from 'lil-gui'
     We want the curve to be stronger when it gets to the end of the branch
     Therefore we can just use the radius random value (distance from centre) as a multplier to the spin param
  * 
+
+    To create a weighted/cruve effect on randomness, you can use Math.pow providing a random value to the power of x. E.g.
+
+    Math.pow(rand(), 2);
+
+    If rand() returns:
+    - 0.5 then .5 * .5 === .25
+    - 0.9 then .9 * .9 === something like .8899
+    - 1 then 1 * 1 === 1
+
+    Meaning the higher the value the more of that value is retained
+
  */
 
 /**
@@ -56,7 +68,11 @@ const parameters = {
     size: 0.01,
     radius: 5,
     branches: 3,
-    curve: 1
+    curve: 1,
+    randomness: 1.5,
+    randomnessPower: 3, 
+    insideColor: '#ff6030',
+    outsideColor: '#1b3984'
 }
 
 let galaxyMaterial = null;
@@ -71,31 +87,49 @@ const generateGalaxy = () => {
     }
 
     const positions = new Float32Array(parameters.count * 3);
+    const colors = new Float32Array(parameters.count * 3);
+
+    const insideColor = new THREE.Color(parameters.insideColor);
+    const outsideColor = new THREE.Color(parameters.outsideColor);
 
     for (let index = 0; index < parameters.count; index++) {
         // we loop only 10000 times to cover the 30000 xyz values that we need to create for the particles
         const i3 = index * 3;
 
         const radius = Math.random() * parameters.radius;
+        const mixedColor = insideColor.clone().lerp(outsideColor, radius / parameters.radius)
 
+
+        const randomX = Math.pow(Math.random(), parameters.randomnessPower) * (Math.random() > 0.5 ? 1 : -1);
+        const randomY = Math.pow(Math.random(), parameters.randomnessPower) * (Math.random() > 0.5 ? 1 : -1);
+        const randomZ = Math.pow(Math.random(), parameters.randomnessPower) * (Math.random() > 0.5 ? 1 : -1);
+
+    
         const curveAngle = radius * parameters.curve;
         const branchAngle = (index % parameters.branches) / parameters.branches * Math.PI * 2;
 
-        positions[i3] =  Math.cos(branchAngle + curveAngle) * radius;
-        positions[i3 + 1] = 0;
-        positions[i3 + 2] =  Math.sin(branchAngle + curveAngle) * radius;
+        positions[i3] =  Math.cos(branchAngle + curveAngle) * radius + randomX;
+        positions[i3 + 1] = randomY;
+        positions[i3 + 2] =  Math.sin(branchAngle + curveAngle) * radius + randomZ;
+
+        colors[i3] = mixedColor.r;
+        colors[i3 + 1] = mixedColor.g;
+        colors[i3 + 2] = mixedColor.b;
     }
 
     const positionsAttribute = new THREE.BufferAttribute(positions, 3);
+    const colorAttribute = new THREE.BufferAttribute(colors, 3);
 
     galaxyGeometry = new THREE.BufferGeometry();
     galaxyGeometry.setAttribute('position', positionsAttribute);
+    galaxyGeometry.setAttribute('color', colorAttribute);
 
     galaxyMaterial = new THREE.PointsMaterial({
         size: parameters.size,
         sizeAttenuation: true,
         depthWrite: false,
-        blending: THREE.AdditiveBlending
+        blending: THREE.AdditiveBlending,
+        vertexColors: true
     });
 
     galaxy = new THREE.Points(galaxyGeometry, galaxyMaterial);
@@ -110,6 +144,8 @@ gui.add(parameters, 'size').min(0.001).max(0.1).step(0.001).onFinishChange(gener
 gui.add(parameters, 'radius').min(0.01).max(10).step(0.1).onFinishChange(generateGalaxy);
 gui.add(parameters, 'branches').min(2).max(10).step(1).onFinishChange(generateGalaxy);
 gui.add(parameters, 'curve').min(-5).max(5).step(0.01).onFinishChange(generateGalaxy);
+gui.add(parameters, 'randomness').min(0).max(2).step(0.01).onFinishChange(generateGalaxy);
+gui.add(parameters, 'randomnessPower').min(1).max(10).step(0.01).onFinishChange(generateGalaxy);
 
 /**
  * Sizes
