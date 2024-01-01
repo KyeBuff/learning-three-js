@@ -17,18 +17,55 @@ const gui = new GUI();
 const scene = new THREE.Scene()
 
 const parameters = {
-    radius: 2
+    radius: 2,
+    addRings: false
 }
 
 /**
  * Objects
  */
 
+const addRings = () => {
+    // create a points mesh for particles
+    // generate a loop which builds a positions buffer attribute
+    // use this loop to create colours
+    // use radius + x to create space around the sphere
+
+    const count = 100000;
+
+    const positions = new Float32Array( count * 3 )
+
+    for (let index = 0; index < count; index++) {
+        const i3 = index * 3;
+
+        const radius = Math.random() > 0.5 ? parameters.radius + 1 : -(parameters.radius + 1);
+        const negativeRadius = radius < 0;
+        const branch = index % 16;
+
+        const x = negativeRadius ? radius - Math.random() : radius + Math.random();
+        const z = negativeRadius ? radius - Math.random() : radius + Math.random();
+
+        positions[i3] = Math.sin(x + branch) * 4;
+        positions[i3 + 1] = 0;
+        positions[i3 + 2] = Math.cos(z + branch) * 4;
+    }
+
+    const positionAttribute = new THREE.BufferAttribute(positions, 3);
+
+    const ringGeometry = new THREE.BufferGeometry();
+    ringGeometry.setAttribute('position', positionAttribute);
+
+    const ringMaterial = new THREE.MeshBasicMaterial();
+
+    const rings = new THREE.Points(ringGeometry, ringMaterial)
+
+    scene.add(rings);
+}
+
 let planet = null;
 let planetMaterial = null;
 
 const generatePlanet = () => {
-
     if (planet) {
         planetMaterial.dispose();
         scene.remove(planet);
@@ -44,6 +81,8 @@ const generatePlanet = () => {
     )
     
     scene.add(planet);
+
+    addRings();
 }
 
 
@@ -129,3 +168,4 @@ tick()
 generatePlanet();
 
 gui.add(parameters, 'radius').min(1).max(3).step(0.01).onFinishChange(generatePlanet)
+gui.add(parameters, 'addRings').onFinishChange(addRings)
