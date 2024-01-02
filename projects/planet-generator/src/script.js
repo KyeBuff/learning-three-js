@@ -18,46 +18,62 @@ const scene = new THREE.Scene()
 
 const parameters = {
     radius: 2,
-    addRings: false
+    addRings: false,
+    ringColorOne: '#28ccc1',
+    ringColorTwo: '#3300FF'
 }
 
 /**
  * Objects
  */
 
-const addRings = () => {
-    // create a points mesh for particles
-    // generate a loop which builds a positions buffer attribute
-    // use this loop to create colours
-    // use radius + x to create space around the sphere
+let rings = null;
+let ringMaterial = null;
 
+const addRings = () => {
+    if (rings) {
+        ringMaterial.dispose();
+        scene.remove(rings);
+    }
     const count = 100000;
 
     const positions = new Float32Array( count * 3 )
+    const colors = new Float32Array( count * 3 )
+
+    const insideColor = new THREE.Color(parameters.ringColorOne);
+    const outsideColor = new THREE.Color(parameters.ringColorTwo);
 
     for (let index = 0; index < count; index++) {
         const i3 = index * 3;
 
         const radius = Math.random() > 0.5 ? parameters.radius + 1 : -(parameters.radius + 1);
-        const negativeRadius = radius < 0;
-        const branch = index % 16;
 
-        const x = negativeRadius ? radius - Math.random() : radius + Math.random();
-        const z = negativeRadius ? radius - Math.random() : radius + Math.random();
-
-        positions[i3] = Math.sin(x + branch) * 4;
+        positions[i3] = Math.sin(index) * radius + (Math.random() - 0.5);
         positions[i3 + 1] = 0;
-        positions[i3 + 2] = Math.cos(z + branch) * 4;
+        positions[i3 + 2] = Math.cos(index) * radius + (Math.random() - 0.5);
+
+        const blendedColor = insideColor.clone().lerp(outsideColor, index / count)
+
+        colors[i3] = blendedColor.r;
+        colors[i3 + 1] = blendedColor.g;
+        colors[i3 + 2] = blendedColor.b;
     }
 
     const positionAttribute = new THREE.BufferAttribute(positions, 3);
+    const colorAttribute = new THREE.BufferAttribute(colors, 3);
 
     const ringGeometry = new THREE.BufferGeometry();
     ringGeometry.setAttribute('position', positionAttribute);
+    ringGeometry.setAttribute('color', colorAttribute);
 
-    const ringMaterial = new THREE.MeshBasicMaterial();
+    ringMaterial = new THREE.PointsMaterial({
+        size: 0.01,
+        sizeAttenuation: true,
+        blending: THREE.AdditiveBlending,
+        vertexColors: true,
+    });
 
-    const rings = new THREE.Points(ringGeometry, ringMaterial)
+    rings = new THREE.Points(ringGeometry, ringMaterial)
 
     scene.add(rings);
 }
@@ -169,3 +185,5 @@ generatePlanet();
 
 gui.add(parameters, 'radius').min(1).max(3).step(0.01).onFinishChange(generatePlanet)
 gui.add(parameters, 'addRings').onFinishChange(addRings)
+gui.addColor(parameters, 'ringColorOne').onFinishChange(addRings)
+gui.addColor(parameters, 'ringColorTwo').onFinishChange(addRings)
