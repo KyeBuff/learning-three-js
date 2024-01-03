@@ -163,7 +163,7 @@ directionalLight.position.z = 2
 
 const ambientLight = new THREE.AmbientLight(
     'white',
-    0.05
+    0.25
 )
 scene.add(planetContainer, ambientLight, directionalLight);
 
