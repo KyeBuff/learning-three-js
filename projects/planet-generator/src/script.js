@@ -10,6 +10,7 @@ import GUI from 'lil-gui'
 // Textures
 const textureLoader = new THREE.TextureLoader();
 const cracks = textureLoader.load('/cracks.jpg')
+const moonTexture = textureLoader.load('/moon.jpg')
 
 // Canvas
 const canvas = document.querySelector('canvas.webgl')
@@ -25,7 +26,8 @@ const parameters = {
     addRings: true,
     ringColorOne: '#ff000d',
     ringColorTwo: '#ff7300',
-    ringSpace: 1.1
+    ringSpace: 1.1,
+    numMoons: 1
 }
 
 const planetContainer = new THREE.Group();
@@ -90,6 +92,39 @@ const addRings = () => {
     planetContainer.add(rings);
 }
 
+const moons = [];
+const moonMaterials = [];
+
+const addMoons = () => {
+    if (moons.length) {
+        moonMaterials.forEach(material => {
+            material.dispose();
+        })
+        moons.forEach(moon => {
+            planetContainer.remove(moon);
+        })
+    }
+
+    for (let index = 0; index < parameters.numMoons; index++) {
+        const moonMaterial = new THREE.MeshStandardMaterial({
+            color: 'white',
+            map: moonTexture
+        });
+
+        const sphere = new THREE.SphereGeometry(Math.round(Math.random() * (parameters.radius - 1)));
+        const moon = new THREE.Mesh(
+            sphere,
+            moonMaterial,
+        );
+
+        moon.position.x = (parameters.radius + 2) + (index + 1) * (Math.random() + .5) * 2;
+        moon.position.y = (parameters.radius + 2) + (index + 1) * (Math.random() + .5) * 2;
+        moon.position.z = (parameters.radius + 2) + (index + 1) * (Math.random() + .5) * 2;
+        planetContainer.add(moon);
+        moons[index] = moon;
+    }
+}
+
 let planet = null;
 let planetMaterial = null;
 
@@ -112,6 +147,7 @@ const generatePlanet = () => {
 
     planetContainer.add(planet);
 
+    addMoons();
     addRings();
 }
 
@@ -189,6 +225,10 @@ const tick = () =>
 
     planetContainer.rotation.y = elapsedTime * .1
 
+    moons.forEach((moon, i) => {
+     moon.rotation.y = elapsedTime * 0.1 * moon.position.y
+    })
+
     // Render
     renderer.render(scene, camera)
 
@@ -201,8 +241,9 @@ tick()
 generatePlanet();
 
 gui.addColor(parameters, 'color').onChange(generatePlanet)
-gui.add(parameters, 'radius').min(1).max(3).step(0.01).onFinishChange(generatePlanet)
+gui.add(parameters, 'radius').min(1.5).max(3).step(0.01).onFinishChange(generatePlanet)
 gui.add(parameters, 'ringSpace').min(.75).max(1.5).step(0.01).onFinishChange(addRings)
 gui.add(parameters, 'addRings').onFinishChange(addRings)
 gui.addColor(parameters, 'ringColorOne').onChange(addRings)
 gui.addColor(parameters, 'ringColorTwo').onChange(addRings)
+gui.add(parameters, 'numMoons').min(0).max(3).step(1).onFinishChange(addMoons)
