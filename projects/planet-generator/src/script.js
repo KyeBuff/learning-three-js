@@ -6,7 +6,9 @@ import GUI from 'lil-gui'
 /**
  * Base
  */
-// Debug
+
+// Textures
+const textureLoader = new THREE.TextureLoader();
 
 // Canvas
 const canvas = document.querySelector('canvas.webgl')
@@ -17,11 +19,15 @@ const gui = new GUI();
 const scene = new THREE.Scene()
 
 const parameters = {
+    color: '#f49a34',
     radius: 2,
-    addRings: false,
+    addRings: true,
     ringColorOne: '#28ccc1',
     ringColorTwo: '#3300FF'
 }
+
+const planetContainer = new THREE.Group();
+planetContainer.rotateZ(0.1)
 
 /**
  * Objects
@@ -33,7 +39,10 @@ let ringMaterial = null;
 const addRings = () => {
     if (rings) {
         ringMaterial.dispose();
-        scene.remove(rings);
+        planetContainer.remove(rings);
+    }
+    if (!parameters.addRings) {
+        return false;
     }
     const count = 100000;
 
@@ -75,7 +84,7 @@ const addRings = () => {
 
     rings = new THREE.Points(ringGeometry, ringMaterial)
 
-    scene.add(rings);
+    planetContainer.add(rings);
 }
 
 let planet = null;
@@ -84,11 +93,11 @@ let planetMaterial = null;
 const generatePlanet = () => {
     if (planet) {
         planetMaterial.dispose();
-        scene.remove(planet);
+        planetContainer.remove(planet);
     }
 
     planetMaterial = new THREE.MeshStandardMaterial({
-        color: 'white'
+        color: parameters.color,
     });
 
     planet = new THREE.Mesh(
@@ -96,7 +105,7 @@ const generatePlanet = () => {
         planetMaterial
     )
     
-    scene.add(planet);
+    planetContainer.add(planet);
 
     addRings();
 }
@@ -109,12 +118,13 @@ const directionalLight = new THREE.DirectionalLight(
 
 directionalLight.position.y = 2
 directionalLight.position.x = 4
+directionalLight.position.z = 2
 
 const ambientLight = new THREE.AmbientLight(
     'white',
-    0.1
+    0.05
 )
-scene.add(ambientLight);
+scene.add(planetContainer, ambientLight, directionalLight);
 
 
 /**
@@ -172,6 +182,8 @@ const tick = () =>
 {
     const elapsedTime = clock.getElapsedTime()
 
+    planetContainer.rotation.y = elapsedTime * .1
+
     // Render
     renderer.render(scene, camera)
 
@@ -183,7 +195,8 @@ tick()
 
 generatePlanet();
 
+gui.addColor(parameters, 'color').onChange(generatePlanet)
 gui.add(parameters, 'radius').min(1).max(3).step(0.01).onFinishChange(generatePlanet)
 gui.add(parameters, 'addRings').onFinishChange(addRings)
-gui.addColor(parameters, 'ringColorOne').onFinishChange(addRings)
-gui.addColor(parameters, 'ringColorTwo').onFinishChange(addRings)
+gui.addColor(parameters, 'ringColorOne').onChange(addRings)
+gui.addColor(parameters, 'ringColorTwo').onChange(addRings)
