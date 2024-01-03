@@ -9,6 +9,7 @@ import GUI from 'lil-gui'
 
 // Textures
 const textureLoader = new THREE.TextureLoader();
+const cracks = textureLoader.load('/cracks.jpg')
 
 // Canvas
 const canvas = document.querySelector('canvas.webgl')
@@ -20,10 +21,11 @@ const scene = new THREE.Scene()
 
 const parameters = {
     color: '#f49a34',
-    radius: 2,
+    radius: 2.5,
     addRings: true,
-    ringColorOne: '#28ccc1',
-    ringColorTwo: '#3300FF'
+    ringColorOne: '#ff000d',
+    ringColorTwo: '#ff7300',
+    ringSpace: 1.1
 }
 
 const planetContainer = new THREE.Group();
@@ -55,13 +57,14 @@ const addRings = () => {
     for (let index = 0; index < count; index++) {
         const i3 = index * 3;
 
-        const radius = Math.random() > 0.5 ? parameters.radius + 1 : -(parameters.radius + 1);
+        const powerAdjustment = Math.pow(parameters.radius, parameters.ringSpace / parameters.radius);
+        const radius = Math.random() > 0.5 ? parameters.radius + 1 : -(parameters.radius + 1) * (Math.random() > 0.5 ? powerAdjustment : -powerAdjustment);
 
         positions[i3] = Math.sin(index) * radius + (Math.random() - 0.5);
         positions[i3 + 1] = 0;
-        positions[i3 + 2] = Math.cos(index) * radius + (Math.random() - 0.5);
+        positions[i3 + 2] = Math.cos(index) * radius + (Math.random() - 0.33);
 
-        const blendedColor = insideColor.clone().lerp(outsideColor, index / count)
+        const blendedColor = insideColor.clone().lerp(outsideColor, Math.random())
 
         colors[i3] = blendedColor.r;
         colors[i3 + 1] = blendedColor.g;
@@ -76,7 +79,7 @@ const addRings = () => {
     ringGeometry.setAttribute('color', colorAttribute);
 
     ringMaterial = new THREE.PointsMaterial({
-        size: 0.01,
+        size: 0.02,
         sizeAttenuation: true,
         blending: THREE.AdditiveBlending,
         vertexColors: true,
@@ -97,14 +100,16 @@ const generatePlanet = () => {
     }
 
     planetMaterial = new THREE.MeshStandardMaterial({
+        map: cracks,
         color: parameters.color,
+        metalness: 0, roughness: 1
     });
 
     planet = new THREE.Mesh(
         new THREE.SphereGeometry(parameters.radius),
         planetMaterial
     )
-    
+
     planetContainer.add(planet);
 
     addRings();
@@ -113,7 +118,7 @@ const generatePlanet = () => {
 
 const directionalLight = new THREE.DirectionalLight(
     'white',
-    2
+    4
 )
 
 directionalLight.position.y = 2
@@ -156,7 +161,7 @@ window.addEventListener('resize', () =>
  */
 // Base camera
 const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
-camera.position.z = 5;
+camera.position.z = 8;
 camera.position.y = 1;
 scene.add(camera)
 
@@ -197,6 +202,7 @@ generatePlanet();
 
 gui.addColor(parameters, 'color').onChange(generatePlanet)
 gui.add(parameters, 'radius').min(1).max(3).step(0.01).onFinishChange(generatePlanet)
+gui.add(parameters, 'ringSpace').min(.75).max(1.5).step(0.01).onFinishChange(addRings)
 gui.add(parameters, 'addRings').onFinishChange(addRings)
 gui.addColor(parameters, 'ringColorOne').onChange(addRings)
 gui.addColor(parameters, 'ringColorTwo').onChange(addRings)
