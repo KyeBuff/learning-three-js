@@ -1,3 +1,35 @@
+/***
+ * Physics world separated from scene 
+
+Updates applied to Physics and then to 3js objects
+
+Csnnonjs kikks nice
+
+In tick fn you have to tell world how to step update (1 / 60, deltaTime, subStrps to catch up, if the physics world is lagging behind 
+
+Copy threejs metnod can take a whole object 
+
+Materials and contact mateiral
+
+Materiaks can be apllied to bodies
+
+Contact material takes two materials and describes how they interact with each other
+
+You can set a default contact material for the world to describe standard interaction
+
+You have to add materials and contact material to the world
+
+Applying forces
+
+You can apply a force using two vec3s
+
+Can be local force where target vec3 coords are the position on the geom not the world
+
+We apply forces to bodies
+
+Impulses can also be applied affecting velocity directly not as a result of force 
+ */
+
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import GUI from 'lil-gui'
@@ -32,10 +64,11 @@ const sphereBody = new CANNON.Body({
     material: sphereMaterial
 });
 
-// sphereBody.applyLocalForce(
-//     new CANNON.Vec3(50, 0, 0),
-//     new CANNON.Vec3(0, 0, 0)
-// )
+// a force relative to the sphere's (local body coords, not world)
+sphereBody.applyLocalForce(
+    new CANNON.Vec3(120, 0, 0),
+    new CANNON.Vec3(0, 0, 0)
+)
 
 world.addContactMaterial(sphereFloorContactMaterial);
 world.addBody(sphereBody);
@@ -183,6 +216,7 @@ const tick = () =>
 
     sphere.position.copy(sphereBody.position);
 
+    // Small application of force which reads spheres new position on FPS and applies a wind-like small force
     sphereBody.applyForce(new CANNON.Vec3(-.5, 0, 0), sphereBody.position)
 
     // https://gafferongames.com/post/fix_your_timestep/
