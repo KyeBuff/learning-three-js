@@ -30,8 +30,12 @@ const sphereBody = new CANNON.Body({
     position: new CANNON.Vec3(0, 3, 0),
     shape: sphereShape,
     material: sphereMaterial
-
 });
+
+// sphereBody.applyLocalForce(
+//     new CANNON.Vec3(50, 0, 0),
+//     new CANNON.Vec3(0, 0, 0)
+// )
 
 world.addContactMaterial(sphereFloorContactMaterial);
 world.addBody(sphereBody);
@@ -178,6 +182,8 @@ const tick = () =>
     lastElapsedTime = elapsedTime;
 
     sphere.position.copy(sphereBody.position);
+
+    sphereBody.applyForce(new CANNON.Vec3(-.5, 0, 0), sphereBody.position)
 
     // https://gafferongames.com/post/fix_your_timestep/
     world.step(1 / 60, deltaTime, 3);
