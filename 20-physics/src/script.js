@@ -28,6 +28,51 @@ Can be local force where target vec3 coords are the position on the geom not the
 We apply forces to bodies
 
 Impulses can also be applied affecting velocity directly not as a result of force 
+
+Create geometries and materials as little as possible
+
+E.g. one sphere geom with a radius of 1 and then scaling it
+
+You must update the quarternion value in the loop to copy from physics world - simulate resl life impact
+
+Boxes in cannon use a half extend nit a h,w,d measurement (its the same but divided by 2) and must be a vec3
+
+Performance 
+
+Broadphase
+Algorithm for collision detection
+NAIVE - Test all objects eveb those miles away
+Grid - test based on close items in a grid
+Sweep and prune - random axis testing, most performant 
+
+Grid and sweep only experiencing issues with super fast moving bodies
+
+Update algo on the world 
+
+Sleeping
+Set sleeping to true and objects that are not moving (or super slow) will not be tested for collisions. You csn change thr speed limit and delay time limit on the world.
+
+Events
+
+Fire on collision etc
+
+Get info abkut the collision 
+
+Can pkay audio as a callback
+
+Tasks:
+- change volume basdd on strength of impact
+- change sound based on object hititng what surface
+
+Go further with Cannon
+- Constraints (keep min distance, hinge movement constraint)
+- Examples page has a car etc on it
+- Workers for CPU / physics performance improvements - puts code on another thread
+
+
+Cannon es - maintained oprn source cannon
+PhysiJS - DRY as couples 3 and physics code
+Ammo.js - more examples with 3, more popular
  */
 
 import * as THREE from 'three'
@@ -48,6 +93,10 @@ const canvas = document.querySelector('canvas.webgl')
 
 // Physics World
 const world = new CANNON.World();
+
+// Sweep and prune collision detection is performant and "best" as per course
+world.broadphase = new CANNON.SAPBroadphase(world);
+world.allowSleep = true
 
 const plasticMaterial = new CANNON.Material('plastic')
 const floorMaterial = new CANNON.Material('concrete')
@@ -204,6 +253,7 @@ const createBox = (vec3, position) => {
     body.addShape(shape);
 
     world.add(body);
+    
 
     objects = [
         ...objects,
@@ -254,6 +304,8 @@ const tick = () =>
 
     objects.forEach(object => {
         object.mesh.position.copy(object.body.position);
+        object.mesh.quaternion.copy(object.body.quaternion);
+        
     })
 
     // https://gafferongames.com/post/fix_your_timestep/
@@ -276,7 +328,7 @@ const debug = {
     generateBox() {
         createBox(
             {x: Math.random(), y: Math.random(), z: Math.random()}, 
-            {x: Math.random() * .5, y: 3, z: Math.random() - .5}
+            {x: (Math.random() - .5) * 3, y: 3, z: (Math.random() - .5) * 3}
         )
     }
 }
