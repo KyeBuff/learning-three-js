@@ -56,22 +56,7 @@ const sphereFloorContactMaterial = new CANNON.ContactMaterial(sphereMaterial, fl
     restitution: 0.7
 })
 
-const sphereShape = new CANNON.Sphere();
-const sphereBody = new CANNON.Body({
-    mass: 1,
-    position: new CANNON.Vec3(0, 3, 0),
-    shape: sphereShape,
-    material: sphereMaterial
-});
-
-// a force relative to the sphere's (local body coords, not world)
-sphereBody.applyLocalForce(
-    new CANNON.Vec3(120, 0, 0),
-    new CANNON.Vec3(0, 0, 0)
-)
-
 world.addContactMaterial(sphereFloorContactMaterial);
-world.addBody(sphereBody);
 
 const floorShape = new CANNON.Plane();
 const floorBody = new CANNON.Body({
@@ -105,22 +90,6 @@ const environmentMapTexture = cubeTextureLoader.load([
 ])
 
 /**
- * Test sphere
- */
-const sphere = new THREE.Mesh(
-    new THREE.SphereGeometry(0.5, 32, 32),
-    new THREE.MeshStandardMaterial({
-        metalness: 0.3,
-        roughness: 0.4,
-        envMap: environmentMapTexture,
-        envMapIntensity: 0.5
-    })
-)
-sphere.castShadow = true
-sphere.position.y = 0.5
-scene.add(sphere)
-
-/**
  * Floor
  */
 const floor = new THREE.Mesh(
@@ -135,7 +104,6 @@ const floor = new THREE.Mesh(
 )
 floor.receiveShadow = true
 floor.rotation.x = - Math.PI * 0.5
-floor.position.y = 0.5;
 scene.add(floor)
 
 /**
@@ -195,11 +163,42 @@ controls.enableDamping = true
  */
 const renderer = new THREE.WebGLRenderer({
     canvas: canvas
-})
+})  
 renderer.shadowMap.enabled = true
 renderer.shadowMap.type = THREE.PCFSoftShadowMap
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+
+let objects = [];
+
+const createSphere = (radius, position) => {
+    const mesh = new THREE.Mesh(
+        new THREE.SphereGeometry(radius, 20, 20),
+        new THREE.MeshStandardMaterial({
+            metalness: 0.3,
+            roughness: 0.4,
+            envMap: environmentMapTexture,
+            envMapIntensity: 0.5
+        })
+    )
+    mesh.position.copy(position);
+    mesh.castShadow = true
+
+    const body = new CANNON.Body({
+        mass: 1,
+        position: position,
+        shape: new CANNON.Sphere(radius),
+        material: sphereMaterial
+    });
+
+    world.addBody(body)
+    scene.add(mesh);
+
+    objects = [...objects, {
+        mesh,
+        body
+    }];
+}
 
 /**
  * Animate
@@ -214,10 +213,9 @@ const tick = () =>
 
     lastElapsedTime = elapsedTime;
 
-    sphere.position.copy(sphereBody.position);
-
-    // Small application of force which reads spheres new position on FPS and applies a wind-like small force
-    sphereBody.applyForce(new CANNON.Vec3(-.5, 0, 0), sphereBody.position)
+    objects.forEach(object => {
+        object.mesh.position.copy(object.body.position);
+    })
 
     // https://gafferongames.com/post/fix_your_timestep/
     world.step(1 / 60, deltaTime, 3);
@@ -232,4 +230,13 @@ const tick = () =>
     window.requestAnimationFrame(tick)
 }
 
+const debug = {
+    generateSphere() {
+        createSphere(Math.random() * .5, {x: Math.random() - .5, y: 3, z: Math.random() - .5})
+    }
+}
+
+gui.add(debug, 'generateSphere')
+
 tick()
+
