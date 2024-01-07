@@ -172,17 +172,52 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 let objects = [];
 
 const sphereGeometry = new THREE.SphereGeometry(1, 20, 20);
-const sphereMaterial = new THREE.MeshStandardMaterial({
+const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
+const objectMaterial = new THREE.MeshStandardMaterial({
     metalness: 0.3,
     roughness: 0.4,
     envMap: environmentMapTexture,
     envMapIntensity: 0.5
 });
 
+const createBox = (vec3, position) => {
+    const mesh = new THREE.Mesh(
+        boxGeometry,
+        objectMaterial
+    );
+    mesh.position.copy(position);
+    mesh.scale.set(vec3.x, vec3.y, vec3.z);
+    mesh.castShadow = true;
+
+    scene.add(mesh);
+
+
+    // Shape box uses half extents which is effectively a radius for each axis on a box and the value is half the full length
+    // as calculation starts from center of box
+    const shape = new CANNON.Box(new CANNON.Vec3(vec3.x / 2, vec3.y / 2, vec3.z / 2));
+    const body = new CANNON.Body({
+        mass: 1,
+        material: plasticMaterial,
+        position
+    });
+
+    body.addShape(shape);
+
+    world.add(body);
+
+    objects = [
+        ...objects,
+        {
+            mesh,
+            body
+        }
+    ]
+}
+
 const createSphere = (radius, position) => {
     const mesh = new THREE.Mesh(
         sphereGeometry,
-        sphereMaterial,
+        objectMaterial,
     )
     mesh.scale.set(radius, radius, radius);
     mesh.position.copy(position);
@@ -237,10 +272,17 @@ const tick = () =>
 const debug = {
     generateSphere() {
         createSphere(Math.random() * .5, {x: Math.random() - .5, y: 3, z: Math.random() - .5})
+    },
+    generateBox() {
+        createBox(
+            {x: Math.random(), y: Math.random(), z: Math.random()}, 
+            {x: Math.random() * .5, y: 3, z: Math.random() - .5}
+        )
     }
 }
 
 gui.add(debug, 'generateSphere')
+gui.add(debug, 'generateBox')
 
 tick()
 
