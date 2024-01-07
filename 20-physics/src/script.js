@@ -80,6 +80,9 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import GUI from 'lil-gui'
 import CANNON from 'cannon';
 
+const collisionSound = new Audio('/sounds/hit.mp3');
+const plasticSound = new Audio('/sounds/plastic_hit.wav');
+
 /**
  * Debug
  */
@@ -220,6 +223,24 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
 let objects = [];
 
+const handleCollision = (event) => {
+    const collisionStrength = event.contact.getImpactVelocityAlongNormal();
+    const volume = collisionStrength / 10;
+
+    let soundToPlay = collisionSound
+    const hitOtherShape = event.body.shapes.find((shape) => !(shape instanceof CANNON.Plane));
+
+    if (hitOtherShape) {
+        soundToPlay = plasticSound;
+    }
+
+    if (collisionStrength > .5) {
+        soundToPlay.currentTime = 0;
+        soundToPlay.volume = volume > 1 ? 1 : volume;
+        soundToPlay.play();
+    }
+}
+
 const sphereGeometry = new THREE.SphereGeometry(1, 20, 20);
 const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
 const objectMaterial = new THREE.MeshStandardMaterial({
@@ -251,6 +272,7 @@ const createBox = (vec3, position) => {
     });
 
     body.addShape(shape);
+    body.addEventListener('collide', handleCollision);
 
     world.add(body);
     
@@ -282,6 +304,8 @@ const createSphere = (radius, position) => {
 
     world.addBody(body)
     scene.add(mesh);
+
+    body.addEventListener('collide', handleCollision);
 
     objects = [...objects, {
         mesh,
