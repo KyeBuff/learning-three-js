@@ -49,14 +49,14 @@ const canvas = document.querySelector('canvas.webgl')
 // Physics World
 const world = new CANNON.World();
 
-const sphereMaterial = new CANNON.Material('plastic')
+const plasticMaterial = new CANNON.Material('plastic')
 const floorMaterial = new CANNON.Material('concrete')
-const sphereFloorContactMaterial = new CANNON.ContactMaterial(sphereMaterial, floorMaterial, {
+const plasticFloorContactMaterial = new CANNON.ContactMaterial(plasticMaterial, floorMaterial, {
     friction: 0.1,
     restitution: 0.7
 })
 
-world.addContactMaterial(sphereFloorContactMaterial);
+world.addContactMaterial(plasticFloorContactMaterial);
 
 const floorShape = new CANNON.Plane();
 const floorBody = new CANNON.Body({
@@ -171,16 +171,20 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
 let objects = [];
 
+const sphereGeometry = new THREE.SphereGeometry(1, 20, 20);
+const sphereMaterial = new THREE.MeshStandardMaterial({
+    metalness: 0.3,
+    roughness: 0.4,
+    envMap: environmentMapTexture,
+    envMapIntensity: 0.5
+});
+
 const createSphere = (radius, position) => {
     const mesh = new THREE.Mesh(
-        new THREE.SphereGeometry(radius, 20, 20),
-        new THREE.MeshStandardMaterial({
-            metalness: 0.3,
-            roughness: 0.4,
-            envMap: environmentMapTexture,
-            envMapIntensity: 0.5
-        })
+        sphereGeometry,
+        sphereMaterial,
     )
+    mesh.scale.set(radius, radius, radius);
     mesh.position.copy(position);
     mesh.castShadow = true
 
@@ -188,7 +192,7 @@ const createSphere = (radius, position) => {
         mass: 1,
         position: position,
         shape: new CANNON.Sphere(radius),
-        material: sphereMaterial
+        material: plasticMaterial
     });
 
     world.addBody(body)
