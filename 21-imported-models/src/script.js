@@ -1,12 +1,21 @@
+// Notes in README
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import GUI from 'lil-gui'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 
 /**
  * Base
  */
 // Debug
 const gui = new GUI()
+
+const gltfLoader = new GLTFLoader();
+const duck = gltfLoader.load('/models/Duck/glTF/Duck.gltf', (gltf) => {
+    scene.add(gltf.scene)
+});
+
+
 
 // Canvas
 const canvas = document.querySelector('canvas.webgl')
