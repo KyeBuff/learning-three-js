@@ -34,7 +34,12 @@ const object3 = new THREE.Mesh(
 )
 object3.position.x = 2
 
+const objects = [object1, object2, object3];
+
 scene.add(object1, object2, object3)
+
+
+const raycaster = new THREE.Raycaster();
 
 /**
  * Sizes
@@ -87,7 +92,27 @@ const clock = new THREE.Clock()
 
 const tick = () =>
 {
+    raycaster.set(
+        new THREE.Vector3(-3, 0, 0),
+        new THREE.Vector3(1, 0, 0).normalize(),
+    )
+
     const elapsedTime = clock.getElapsedTime()
+
+    object1.position.y = Math.sin(elapsedTime)
+    object2.position.y = Math.cos(elapsedTime)
+    object3.position.y = Math.sin(elapsedTime / 2) * 2
+
+    const intersects = raycaster.intersectObjects([object1, object2, object3]);
+
+    objects.forEach(obj => {
+        obj.material.color.set('white');
+    })
+
+    intersects.forEach(intersect => {
+        intersect.object.material.color.set('red');
+    })
+
 
     // Update controls
     controls.update()
