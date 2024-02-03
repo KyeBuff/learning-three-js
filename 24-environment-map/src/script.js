@@ -68,6 +68,24 @@
  * With objects that are at the center of the scene on the Z axis, the skybox will be projected onto the ground and make objects appear that they are on the ground
  * This won't look great if objects are at the center of the environment map as they will be skewed
  *
+ * 
+ * Realtime env maps
+ * 
+ * WEBGLCubeRenderTarget - creates a cube texture that can be used as an env map
+ * Render target are textures which captures a render
+ * Half float type uses 16 bits to store the color data
+ * Float type uses 32 bits to store the color data
+ * The above types mean that we can use a THREE.Color RBG where values go beyond 0 and 1. This is because HDR has a higher range and allows for more intensity. E.g. are example light is orange but the ring looks white
+ * 
+ * We use a CubeCamera to carry out the 6 cube renders then update the cubeRenderTarget
+ * We call update in the tick function on the camera so that renders are captured on each frame
+ * The target is then updated and as it has been assigned to the scene.environment, the scene is updated
+ * 
+ * BUG: Objects in a realtime render can be seen in their own reflections which is a bug
+ * The fix is to use layers (like a numeric category) to exclude the relevant objects from the CubeCamera render
+ * In our instance, we only want the donut to be rendered for it's light / environemnt purposes
+ * Default layer for all objects is 0
+ * So we set cube camera to only layer 1 with set(1) and enable the layer for the donut with enable(1) but keeps donut in 0 layer too
  */
 
 import * as THREE from 'three'
@@ -161,19 +179,19 @@ const rgbeLoader = new RGBELoader();
 const exrLoader = new EXRLoader();
 
 // 2k refers to resolution
-rgbeLoader.load(`/environmentMaps/${envMapFolder}/2k.hdr`, (envMap) => {
-    envMap.mapping = THREE.EquirectangularReflectionMapping;
+// rgbeLoader.load(`/environmentMaps/${envMapFolder}/2k.hdr`, (envMap) => {
+//     envMap.mapping = THREE.EquirectangularReflectionMapping;
 
-    scene.environment = envMap;
+//     scene.environment = envMap;
 
-    const skybox = new GroundProjectedSkybox(envMap);
+//     const skybox = new GroundProjectedSkybox(envMap);
 
-    skybox.radius = 120;
-    skybox.height = 11
-    skybox.scale.setScalar(50);
+//     skybox.radius = 120;
+//     skybox.height = 11
+//     skybox.scale.setScalar(50);
 
-    scene.add(skybox);
-});
+//     scene.add(skybox);
+// });
 // rgbeLoader.load(`/environmentMaps/blender-2k.hdr`, (envMap) => {
 //     envMap.mapping = THREE.EquirectangularReflectionMapping;
 
@@ -187,12 +205,12 @@ rgbeLoader.load(`/environmentMaps/${envMapFolder}/2k.hdr`, (envMap) => {
 //     scene.environment = envMap;
 //     scene.background = envMap;
 // });
-// const envMap = textureLoader.load(`/environmentMaps/blockadesLabsSkybox/scifi_white_sky_scrapers_in_clouds_at_day_time.jpg`);
-// envMap.mapping = THREE.EquirectangularReflectionMapping;
-// envMap.colorSpace = THREE.SRGBColorSpace;
+const envMap = textureLoader.load(`/environmentMaps/blockadesLabsSkybox/interior_views_cozy_wood_cabin_with_cauldron_and_p.jpg`);
+envMap.mapping = THREE.EquirectangularReflectionMapping;
+envMap.colorSpace = THREE.SRGBColorSpace;
 
 // scene.environment = envMap;
-// scene.background = envMap;
+scene.background = envMap;
 
 
 /**
@@ -209,6 +227,25 @@ const torusKnot = new THREE.Mesh(
 torusKnot.position.y = 4
 torusKnot.position.x = -4
 scene.add(torusKnot)
+
+const holyDonut = new THREE.Mesh(
+    new THREE.TorusGeometry(8, .5),
+    new THREE.MeshBasicMaterial({color: new THREE.Color(10, 4, 2) })
+);
+
+holyDonut.position.y = 3.5;
+holyDonut.layers.enable(1);
+
+scene.add(holyDonut);
+
+const cubeRenderTarget = new THREE.WebGLCubeRenderTarget(256, {
+    type: THREE.HalfFloatType, // can also be float type but half float is more efficient and covers most use cases
+});
+
+scene.environment = cubeRenderTarget.texture;
+
+const cubeCamera = new THREE.CubeCamera(0.1, 100, cubeRenderTarget);
+cubeCamera.layers.set(1);
 
 /**
  * Sizes
@@ -263,6 +300,12 @@ const tick = () =>
 {
     // Time
     const elapsedTime = clock.getElapsedTime()
+
+    if (holyDonut) {
+        holyDonut.rotation.x = Math.sin(elapsedTime) * 2;
+
+        cubeCamera.update(renderer, scene);
+    }
 
     // Update controls
     controls.update()
