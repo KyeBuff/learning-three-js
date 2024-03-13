@@ -1,7 +1,6 @@
 import Experience from '../Experience.js'
 import Environment from './Environment.js'
-import Floor from './Floor.js'
-import Fox from './Fox.js'
+import Plane from './Plane.js'
 
 export default class World
 {
@@ -15,15 +14,12 @@ export default class World
         this.resources.on('ready', () =>
         {
             // Setup
-            this.floor = new Floor()
-            this.fox = new Fox()
+            this.plane = new Plane()
             this.environment = new Environment()
         })
     }
 
     update()
     {
-        if(this.fox)
-            this.fox.update()
     }
 }
