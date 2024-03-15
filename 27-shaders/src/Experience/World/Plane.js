@@ -18,7 +18,7 @@ export default class Plane
 
     setGeometry()
     {
-        this.geometry = new THREE.PlaneGeometry(5, 5)
+        this.geometry = new THREE.PlaneGeometry(1, 1, 32, 32)
     }
 
     setTextures()
