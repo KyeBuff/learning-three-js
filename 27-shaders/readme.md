@@ -36,6 +36,13 @@ GPU executes the shader instructions and renders the verteces.
 - Data that is different for each vertex
 - Position, color, texture coordinates, etc
 
+#### Passing from 3JS to Shader
+- BufferAttributes are passed to the shader as an attribute value which can read
+- A single element in the attributes buffer is passed not the whole thing and it is for each corresponding vertex
+- You can then use this value to affect position etc
+
+Example - create spikes on a plane using random values in a float 32 array 
+
 ### Uniforms
 - Data that does not change for each vertex
 - Transformations, lighting, camera sometimes etc
@@ -51,3 +58,11 @@ Does not use attributes as it is only concerned with the pixel it is rendering.
 It can accept varying from the vertex shader, which are interpolated values between the vertices. For example - Mixtures of colors between vertices.
 
 
+### Precision variable 
+- Required for the `RawShaderMaterial`
+- Affects performance 
+- Can be low, medium or high p
+
+```c
+precision mediump float
+```
