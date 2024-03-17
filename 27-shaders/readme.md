@@ -66,3 +66,17 @@ It can accept varying from the vertex shader, which are interpolated values betw
 ```c
 precision mediump float
 ```
+
+### Varying 
+
+Varying vars are sent from the Vertex to Fragment Shader. Fragment Shader cannot just read the attributes so we send them from the vertex shader as varying.
+
+Define the varying on the Vertex shader, assign it a value and then define it on the Fragment Shader and use it.
+
+```c
+varying vRandom float;
+
+gl_FragColor = vec4(vRandom, 1.0, 0.5, 1.0);
+```
+
+This is a color for each vertex, of which there are 3 to vertices. Values are interpolated to create a gradient like effect between each vertex.
