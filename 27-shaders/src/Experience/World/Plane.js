@@ -14,6 +14,7 @@ export default class Plane
         this.setTextures()
         this.setMaterial()
         this.setMesh()
+        this.setDeviations()
     }
 
     setGeometry()
@@ -34,5 +35,18 @@ export default class Plane
     {
         this.mesh = new THREE.Mesh(this.geometry, this.material)
         this.scene.add(this.mesh)
+    }
+
+    setDeviations()
+    {
+        const count = this.geometry.attributes.position.count;
+        const deviations = new Float32Array(count);
+
+        for (let i = 0; i < count; i++)
+        {
+            deviations[i] = Math.random();
+        }
+
+        this.geometry.setAttribute('aDeviations', new THREE.BufferAttribute(deviations, 1));
     }
 }
