@@ -2,13 +2,15 @@ import * as THREE from 'three'
 import vertexShader from './vertexShader.glsl'
 import fragmentShader from './fragmentShader.glsl'
 import Experience from '../../Experience';
+import EventEmitter from '../../Utils/EventEmitter';
 
-export default class TestShader
+export default class TestShader extends EventEmitter
 {   
     material = null;
 
     constructor()
     {
+        super();
         this.experience = new Experience();
         this.debug = this.experience.debug
 
@@ -17,7 +19,8 @@ export default class TestShader
             fragmentShader: fragmentShader,
             uniforms:
             {
-                uFrequency: { value: new THREE.Vector2(10, 5) }
+                uFrequency: { value: new THREE.Vector2(20, 5) },
+                uTime: { value: 0 },
             },
         })
 
@@ -27,5 +30,10 @@ export default class TestShader
             this.debugFolder.add(this.material.uniforms.uFrequency.value, 'x').step(0.01).min(0).max(20).name('frequencyX')
             this.debugFolder.add(this.material.uniforms.uFrequency.value, 'y').step(0.01).min(0).max(20).name('frequencyY')
         }
+
+        this.experience.time.on('tick', () =>
+        {
+            this.material.uniforms.uTime.value = this.experience.time.elapsed * 0.01
+        });
     }
 }
