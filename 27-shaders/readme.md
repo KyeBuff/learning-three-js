@@ -44,6 +44,13 @@ GPU executes the shader instructions and renders the verteces.
 - Data that is different for each vertex
 - Position, color, texture coordinates, etc
 
+#### Passing from 3JS to Shader
+- BufferAttributes are passed to the shader as an attribute value which can read
+- A single element in the attributes buffer is passed not the whole thing and it is for each corresponding vertex
+- You can then use this value to affect position etc
+
+Example - create spikes on a plane using random values in a float 32 array 
+
 ### Uniforms
 - Data that does not change for each vertex
 - Transformations, lighting, camera sometimes etc
@@ -223,3 +230,25 @@ void fooBar(int a, int b) {
     float c = float(a + b);
 }
 ```
+### Precision variable 
+- Required for the `RawShaderMaterial`
+- Affects performance 
+- Can be low, medium or high p
+
+```c
+precision mediump float
+```
+
+### Varying 
+
+Varying vars are sent from the Vertex to Fragment Shader. Fragment Shader cannot just read the attributes so we send them from the vertex shader as varying.
+
+Define the varying on the Vertex shader, assign it a value and then define it on the Fragment Shader and use it.
+
+```c
+varying vRandom float;
+
+gl_FragColor = vec4(vRandom, 1.0, 0.5, 1.0);
+```
+
+This is a color for each vertex, of which there are 3 to vertices. Values are interpolated to create a gradient like effect between each vertex.
