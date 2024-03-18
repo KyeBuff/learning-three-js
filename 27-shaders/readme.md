@@ -59,6 +59,25 @@ Once the GPU has processed the Vertex Shader, it knows what parts of the geometr
 
 The data is then sent to the Fragment Shader.
 
+#### Using Uniforms
+- Pass from JS to Shader
+- The variable changes and this is immediately reflected in the render
+- You can use this to create a wave effect on a plane
+
+You pass them to the material like:
+```js
+const material = new THREE.ShaderMaterial({
+    uniforms: {
+        time: { value: 0 }
+    }
+});
+```
+
+Then you can use them in the shader like:
+```c
+uniform float time;
+```
+
 ### Usage 
 - main function is called automatically 
 - gl_Position is a built-in variable that is used to set the position of the vertex

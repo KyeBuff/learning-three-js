@@ -11,8 +11,7 @@ export default class Plane
         this.resources = this.experience.resources
 
         this.setGeometry()
-        this.setTextures()
-        this.setMaterial()
+        this.setShader()
         this.setMesh()
         this.setDeviations()
     }
@@ -22,13 +21,10 @@ export default class Plane
         this.geometry = new THREE.PlaneGeometry(1, 1, 32, 32)
     }
 
-    setTextures()
+    setShader()
     {
-    }
-
-    setMaterial()
-    {
-        this.material = new TestShader().material;
+        const shader = new TestShader();
+        this.material = shader.material;
     }
 
     setMesh()
