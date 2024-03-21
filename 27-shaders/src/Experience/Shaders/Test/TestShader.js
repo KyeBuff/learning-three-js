@@ -12,17 +12,24 @@ export default class TestShader extends EventEmitter
     {
         super();
         this.experience = new Experience();
+        this.resources = this.experience.resources;
+
         this.debug = this.experience.debug
+
+        const flag = this.resources.items.flagTexture
 
         this.material = new THREE.RawShaderMaterial({
             vertexShader: vertexShader,
             fragmentShader: fragmentShader,
             uniforms:
             {
-                uFrequency: { value: new THREE.Vector2(20, 5) },
+                uFrequency: { value: new THREE.Vector2(10, 5) },
                 uTime: { value: 0 },
+                uColor: { value: new THREE.Color('yellow') },
+                uTexture: { value: flag },
             },
         })
+
 
         if(this.debug.active)
         {
