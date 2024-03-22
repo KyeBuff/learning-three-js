@@ -279,7 +279,7 @@ This is a color for each vertex, of which there are 3 to vertices. Values are in
 - Passed to the fragment shader as a uniform sampler2D type
 - texture2D() called with first argument as uTexture
     - Second argument is the texture coordinates (these are the UV coordinates of the geometry) and are passed from the vertex shader to the fragment shader as varying
-    - This maps the colour from the texture to the geometry
+    - This maps the colour from the texture to the geometry as the UV coordinates contain the values required to do so
 
 <!-- In vertex shader -->
 ```c
