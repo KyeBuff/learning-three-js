@@ -1,6 +1,3 @@
-precision mediump float;
-precision mediump float;
-
 uniform sampler2D uTexture;
 
 varying vec2 vUv;

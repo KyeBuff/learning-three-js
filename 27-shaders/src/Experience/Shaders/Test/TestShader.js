@@ -18,7 +18,7 @@ export default class TestShader extends EventEmitter
 
         const flag = this.resources.items.flagTexture
 
-        this.material = new THREE.RawShaderMaterial({
+        this.material = new THREE.ShaderMaterial({
             vertexShader: vertexShader,
             fragmentShader: fragmentShader,
             uniforms:

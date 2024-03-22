@@ -310,3 +310,16 @@ const material = new THREE.ShaderMaterial({
     }
 });
 ```
+
+# Benefits of ShaderMaterial vs Raw
+
+You can remove the following uniform and attribute and precision in both shaders:
+
+uniform mat4 projectionMatrix;
+uniform mat4 viewMatrix;
+uniform mat4 modelMatrix;
+attribute vec3 position;
+attribute vec2 uv;
+precision mediump float;
+
+They are automatically added by the ShaderMaterial.
