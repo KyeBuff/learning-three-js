@@ -2,12 +2,12 @@ export default [
     {
         name: 'grassColorTexture',
         type: 'texture',
-        path: 'textures/dirt/Vol_19_4_Base_Color.png'
+        path: 'textures/bark/Bark.jpg'
     },
     {
         name: 'grassNormalTexture',
         type: 'texture',
-        path: 'textures/dirt/Vol_19_4_Normal.png'
+        path: 'textures/bark/Bark_NORM.png'
     },
     {
         name: 'tree',

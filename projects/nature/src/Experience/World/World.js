@@ -22,12 +22,28 @@ export default class World
             this.environment = new Environment()
             this.trees = new TreeGenerator(10);
             this.rain = new Rain();
+
+            this.handleShadows()
         })
+
+
     }
 
     update()
     {
         if(this.fox)
             this.fox.update()
+    }
+
+    handleShadows()
+    {
+        this.scene.traverse((child) =>
+        {
+            if(child.isMesh)
+            {
+                child.castShadow = true
+                child.receiveShadow = true
+            }
+        })
     }
 }

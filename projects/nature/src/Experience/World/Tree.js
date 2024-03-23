@@ -17,7 +17,7 @@ export default class Tree
         }
 
         // Resource
-        this.resource = {...this.resources.items[resource]}
+        this.resource = this.resources.items[resource]
 
         this.setModel()
     }
@@ -25,15 +25,6 @@ export default class Tree
     setModel()
     {
         this.model = this.resource.scene.clone()
-        // this.model.scale.set(0.2, 0.2, 0.2)
-
-        this.model.traverse((child) =>
-        {
-            if(child instanceof THREE.Mesh)
-            {
-                child.castShadow = true
-            }
-        })
     }
 
     setPosition(...args)
