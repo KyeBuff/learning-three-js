@@ -2,6 +2,7 @@ import Experience from '../Experience.js'
 import Environment from './Environment.js'
 import Floor from './Floor.js'
 import TreeGenerator from './Generators/TreeGenerator.js'
+import Rain from './Rain.js'
 import Tree from './Tree.js'
 
 export default class World
@@ -20,6 +21,7 @@ export default class World
             this.floor = new Floor();
             this.environment = new Environment()
             this.trees = new TreeGenerator(10);
+            this.rain = new Rain();
         })
     }
 
