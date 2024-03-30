@@ -177,7 +177,7 @@ varying vec2 vUv;
 //     gl_FragColor = vec4(vec3(value), 1.0);
 // }
 
-// Pattern 19 - inner box
+// Pattern 19/20 - inner box
 //   0.2
 //  |  |
 // ######
@@ -188,10 +188,37 @@ varying vec2 vUv;
 //   0.2
 
 // Step function leads to the inner box by testing if the maximum offset X or Y value is less than 0.2
+// void main()
+// {
+//     // float value = abs(vUv.x - 0.5) * abs(vUv.y - 0.5) * 3.0;
+
+//     // 19 - float value = step(0.4, max(abs(vUv.x - 0.5), abs(vUv.y - 0.5)));
+
+//     // 20 - float value = step(0.4, max(abs(vUv.x - 0.5), abs(vUv.y - 0.5)));
+
+//     // 20.b: the way Bruno did it which is more accurate as the square was in the middle of the mesh
+//     // We create two squares, one with a 0.25 offset and the other with a 0.2 offset
+//     // The squares have a small intersection due to the 0.25 value of square one's step
+//     // float squareOne = 1.0 - step(0.25, max(abs(vUv.x - 0.5), abs(vUv.y - 0.5)));
+//     // float squareTwo = step(0.2, max(abs(vUv.x - 0.5), abs(vUv.y - 0.5)));
+
+//     // // We can multiply the squares to only render the intersection
+//     // // This make sense as both squares intersections will be there highest value and so multiplying them will only render the intersection
+//     // float value = squareOne * squareTwo;
+//     // gl_FragColor = vec4(vec3(value), 1.0);
+
+// }
+
+// Pattern 21 and 22 - diagonal square grid
+
+// When we want to combine X and Y effects, we can multiply them
+
 void main()
 {
-    // float value = abs(vUv.x - 0.5) * abs(vUv.y - 0.5) * 3.0;
-
-    float value = step(0.2, max(abs(vUv.x - 0.5), abs(vUv.y - 0.5)));
+    // 0.1 * 10 = 1 / 10 = 0.1
+    // 0.2 * 10 = 2 / 10 = 0.2
+    float floorX = floor(vUv.x * 10.0);
+    float floorY = floor(vUv.y * 10.0);
+    float value = floorX / 10.0 * floorY / 10.0;
     gl_FragColor = vec4(vec3(value), 1.0);
 }
