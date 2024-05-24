@@ -1,5 +1,21 @@
 varying vec2 vUv;
+uniform float uTime;
 
+// A constant
+#define PI 3.14159265359
+
+float random(vec2 st)
+{
+    return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123);
+}
+
+vec2 rotate(vec2 uv, float rotation, vec2 mid)
+{
+    return vec2(
+      cos(rotation) * (uv.x - mid.x) + sin(rotation) * (uv.y - mid.y) + mid.x,
+      cos(rotation) * (uv.y - mid.y) - sin(rotation) * (uv.x - mid.x) + mid.y
+    );
+}
 
 // Left to right - black to white
 // void main()
@@ -213,12 +229,143 @@ varying vec2 vUv;
 
 // When we want to combine X and Y effects, we can multiply them
 
+// void main()
+// {
+//     // 0.1 * 10 = 1 / 10 = 0.1
+//     // 0.2 * 10 = 2 / 10 = 0.2
+//     float floorX = floor(vUv.x * 10.0);
+//     float floorY = floor(vUv.y * 10.0);
+//     float value = floorX / 10.0 * floorY / 10.0;
+//     gl_FragColor = vec4(vec3(value), 1.0);
+// }
+
+// Pattern 23 - old TV broken screen
+
+// void main()
+// {   
+// //     // 0.1 * 10 = 1 / 10 = 0.1
+// //     // 0.2 * 10 = 2 / 10 = 0.2
+//     float floorX = floor(vUv.x * 10.0);
+//     float floorY = floor(vUv.y * 10.0);
+//     float value = floorX / 10.0 * floorY / 10.0;
+
+//     // Re-use flooring grid code from previous exercise
+//     vec2 st = vec2(floorX / 10.0, floorY / 10.0);
+//     // Create a vec2 for random using the same value twice to create a small square
+//     // As the values are floored to the same in the same, we can call random (as it's a pure function which retuns the same value for the same input)
+
+//     gl_FragColor = vec4(vec3(random(st)), 1.0);
+// }
+
+// Offset diagonal grid
+// void main()
+// {   
+// //     // 0.1 * 10 = 1 / 10 = 0.1
+// //     // 0.2 * 10 = 2 / 10 = 0.2
+//     float floorX = floor(vUv.x * 10.0);
+//     float floorY = floor((vUv.y + vUv.x / 2.0) * 10.0);
+    
+//     // Re-use flooring grid code from previous exercise
+//     vec2 st = vec2(floorX / 10.0, floorY / 10.0);
+//     // Create a vec2 for random using the same value twice to create a small square
+//     // As the values are floored to the same in the same, we can call random (as it's a pure function which retuns the same value for the same input)
+
+//     gl_FragColor = vec4(vec3(random(st)), 1.0);
+// }
+
+// Pattern 25
+
+// length() is a function that returns the length of a vector
+// In this case, we are using the UV coordinates as a vector
+// The length of the vector is the distance from the bottom left corner of the screen
+// The distance is calculated by the Pythagorean theorem
+// The length of the vector is the square root of the sum of the squares of the two sides
+
+
+// Pattern 27 - 28 - 29
+// void main()
+// {
+    // gl_FragColor = vec4(vec3(pow(vUv.y * .75, 1.0 - vUv.x)), 1.0);
+
+    // Length() returns distance from the bottom left corner vec2(0.0, 0.0)
+    // gl_FragColor = vec4(vec3(length(vUv)), 1.0);
+
+    // Distance() returns distance between two points
+    // So here we draw a circle from the middle
+    // gl_FragColor = vec4(vec3(length(vUv - 0.5)), 1.0);
+    // or
+    // gl_FragColor = vec4(vec3(distance(vUv, vec2(0.5, 0.5)) * 2.0), 1.0);
+
+    // reversed 
+
+    // gl_FragColor = vec4(vec3(1.0 - distance(vUv, vec2(0.5))), 1.0);
+
+    // 29 smaller cirlce, more like a sun
+
+    // Had some fun with sin and elapsed time
+
+    // float strength = sin(uTime) / 25.0;
+
+    // gl_FragColor = vec4(vec3(
+    //     strength / distance(vUv, vec2(0.5))
+    // ), 1.0);
+
+    // Cool space-like pattern 
+    // gl_FragColor = vec4(vec3(
+    //     0.025 / distance(vUv, vec2(0.5)) - abs(vUv.y - 0.5) * 10.0
+    // ), 1.0);
+
+
 void main()
 {
-    // 0.1 * 10 = 1 / 10 = 0.1
-    // 0.2 * 10 = 2 / 10 = 0.2
-    float floorX = floor(vUv.x * 10.0);
-    float floorY = floor(vUv.y * 10.0);
-    float value = floorX / 10.0 * floorY / 10.0;
-    gl_FragColor = vec4(vec3(value), 1.0);
+    // 30 
+    // vec2 adjustedVec = vec2(
+    //     vUv.x * .1 + 0.45, 
+    //     vUv.y * 0.5 + 0.25
+    // );
+
+    // gl_FragColor = vec4(vec3(
+    //     0.015 / distance(adjustedVec, vec2(0.5))
+    // ), 1.0);
+
+    // 31
+    // vec2 lightUvX = vec2(
+    //     vUv.x * .1 + 0.45, 
+    //     vUv.y * 0.5 + 0.25
+    // );
+    // float lightX = 0.015 / distance(lightUvX, vec2(0.5));
+
+    // vec2 lightUvY = vec2(
+    //     vUv.y * .1 + 0.45, 
+    //     vUv.x * 0.5 + 0.25
+    // );
+    // float lightY = 0.015 / distance(lightUvY, vec2(0.5));
+
+    // float strength = lightX * lightY;
+
+    // gl_FragColor = vec4(strength, strength, strength, 1.0);
+
+ 
+    // 32
+
+    vec2 rotatedUv = rotate(vUv, PI * .25, vec2(0.5));
+
+    vec2 lightUvX = vec2(
+        rotatedUv.x * .1 + 0.45, 
+        rotatedUv.y * 0.5 + 0.25
+    );
+    float lightX = 0.015 / distance(lightUvX, vec2(0.5));
+
+    vec2 lightUvY = vec2(
+        rotatedUv.y * .1 + 0.45, 
+        rotatedUv.x * 0.5 + 0.25
+    );
+    float lightY = 0.015 / distance(lightUvY, vec2(0.5));
+
+    float strength = lightX * lightY;
+
+    gl_FragColor = vec4(strength, strength, strength, 1.0);
+
+
+
 }
