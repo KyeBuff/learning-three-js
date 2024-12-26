@@ -13,7 +13,7 @@
 - They are executed on the GPU
 - They render each vertex 
 - Another shader then renders each pixel (fragment really as a render unit can be more or less than one pixel) colour
-- Shaders need subdivision 
+- Shaders need subdivision as this creatres more vertices and therefore more pixels to render
 
 THREEJS uses shaders with it's materials. Using custom shaders are more performant and:
 - Can be used to create custom effects
