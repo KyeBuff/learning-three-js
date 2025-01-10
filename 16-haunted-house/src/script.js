@@ -31,7 +31,7 @@ const canvas = document.querySelector('canvas.webgl')
 // Scene
 const scene = new THREE.Scene()
 
-const fog = new THREE.Fog('#262837', 1, 15)
+const fog = new THREE.Fog('#262837', 0.1, 1000)
 scene.fog = fog
 
 /**

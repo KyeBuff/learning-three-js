@@ -5,6 +5,8 @@ uniform vec3 uSurfaceColor;
 uniform float uColorOffset;
 uniform float uColorMultiplier;
 
+#include <fog_pars_fragment>
+
 void main()
 {
     float mixStrength = (vElevation + uColorOffset) * uColorMultiplier;
@@ -12,5 +14,6 @@ void main()
 
     gl_FragColor = vec4(color, 1.0);
 
+    #include <fog_fragment>
     #include <colorspace_fragment>
 }

@@ -18,18 +18,22 @@ const canvas = document.querySelector('canvas.webgl')
 
 // Scene
 const scene = new THREE.Scene()
+scene.fog = new THREE.Fog( 0xfff, 1, 10 )
 
 /**
  * Water
  */
 // Geometry
-const waterGeometry = new THREE.PlaneGeometry(2, 2, 128, 128)
-
+const waterGeometry = new THREE.PlaneGeometry(40, 40, 512, 512)
 
 const colorsDebug = {
     uDepthColor: '#186691',
     uSurfaceColor: '#9bd8ff'
 }
+
+const fogUniforms = THREE.UniformsUtils.merge([
+    THREE.UniformsLib[ 'fog' ]
+]);
 
 // Material
 const waterMaterial = new THREE.ShaderMaterial({
@@ -58,8 +62,10 @@ const waterMaterial = new THREE.ShaderMaterial({
         },
         uColorMultiplier: {
             value: 5
-        }
-    }
+        },
+        ...fogUniforms
+    },
+    
 })
 
 gui.add(waterMaterial.uniforms.uWaveElevation, 'value').min(0).max(1).step(0.001).name('uWaveElevation')
